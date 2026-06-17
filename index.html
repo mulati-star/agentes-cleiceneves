@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecossistema de IAs — Cleice Neves</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg: #0d0007; --card: #1a0015; --pink: #FF2D78; --pink-dim: rgba(255,45,120,0.15);
+    --green: #22c55e; --green-dark: #16a34a; --gold: #c9a84c;
+    --white: #fff; --muted: #9d7a93; --border: rgba(255,45,120,0.2); --border-gold: rgba(201,168,76,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; overflow-x: hidden; }
+  .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 0; }
+  .wrap { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--pink); box-shadow: 0 0 30px rgba(255,45,120,0.5); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 12px; background: var(--pink-dim); }
+  .handle { color: var(--muted); font-size: 13px; letter-spacing: 0.05em; margin-bottom: 32px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-gold); border-radius: 20px; padding: 5px 14px; font-size: 11px; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 28px; text-transform: uppercase; }
+  .badge::before { content: '●'; font-size: 8px; }
+  .headline { font-family: 'Playfair Display', serif; font-size: clamp(26px, 5vw, 42px); font-weight: 900; text-align: center; line-height: 1.2; max-width: 560px; margin-bottom: 40px; }
+  .headline .pink { color: var(--pink); }
+  .card { background: var(--card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 36px 32px; width: 100%; max-width: 400px; }
+  .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; color: var(--white); font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus { border-color: var(--pink); }
+  .form-group input::placeholder { color: var(--muted); }
+  .btn { width: 100%; background: var(--green); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn:hover { background: var(--green-dark); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .error { background: rgba(255,45,78,0.1); border: 1px solid rgba(255,45,78,0.3); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ff6b8a; margin-top: 12px; display: none; }
+  .footer { margin-top: 20px; font-size: 11px; color: var(--muted); text-align: center; letter-spacing: 0.05em; }
+  .footer span { color: var(--pink); }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="wrap">
+  <div class="avatar">✨</div>
+  <div class="handle">@cleiceneves</div>
+  <div class="badge">Material Exclusivo</div>
+  <h1 class="headline">
+    Esses são os <span class="pink">agentes de IA</span> que eu, Cleice, uso
+    todos os dias para <span class="pink">viralizar no Instagram</span> e
+    ganhar mais de <span class="pink">+1000 seguidores por dia</span>
+  </h1>
+  <div class="card">
+    <h2>Acesso Exclusivo</h2>
+    <p>Digite sua senha para acessar os agentes</p>
+    <div class="form-group">
+      <label>Senha de acesso</label>
+      <input type="password" id="senha-input" placeholder="••••••••" />
+    </div>
+    <button class="btn" id="btn-login" onclick="fazerLogin()">ACESSAR AGENTES →</button>
+    <div class="error" id="erro">Senha incorreta ou inativa. Verifique com quem te enviou o acesso.</div>
+  </div>
+  <div class="footer">Material Exclusivo — <span>Cleice Neves</span></div>
+</div>
+
+<script>
+const JSONBIN_KEY = '$2a$10$cOFM.YfFmyg92e6irmR4yOqeL7BkwHRdBEekHdTHqgTplPqxZxlji';
+const JSONBIN_BIN = '6a32c6a1f5f4af5e2902df22';
+const DESTINO = 'https://rosa-dourado-assistentes.lovable.app';
+
+async function fazerLogin() {
+  const senha = document.getElementById('senha-input').value.trim();
+  const erro = document.getElementById('erro');
+  const btn = document.getElementById('btn-login');
+  if (!senha) return;
+  btn.disabled = true;
+  btn.textContent = 'VERIFICANDO...';
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    const data = await res.json();
+    const senhas = data.record?.senhas || [];
+    if (senhas.includes(senha)) {
+      btn.textContent = 'ACESSANDO... ✓';
+      window.location.href = DESTINO;
+    } else {
+      erro.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'ACESSAR AGENTES →';
+    }
+  } catch(e) {
+    erro.style.display = 'block';
+    erro.textContent = 'Erro de conexão. Tenta de novo.';
+    btn.disabled = false;
+    btn.textContent = 'ACESSAR AGENTES →';
+  }
+}
+
+document.getElementById('senha-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') fazerLogin();
+});
+</script>
+</body>
+</html>
