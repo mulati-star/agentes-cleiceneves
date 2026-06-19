@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecossistema de IAs — Cleice Neves</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg: #0d0007; --card: #1a0015; --pink: #FF2D78; --pink-dim: rgba(255,45,120,0.15);
+    --green: #22c55e; --green-dark: #16a34a; --gold: #c9a84c;
+    --white: #fff; --muted: #9d7a93; --border: rgba(255,45,120,0.2); --border-gold: rgba(201,168,76,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; overflow-x: hidden; }
+  .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 0; }
+  .screen { display: none; position: relative; z-index: 1; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+  .screen.active { display: flex; }
+  .avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--pink); box-shadow: 0 0 30px rgba(255,45,120,0.5); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 12px; background: var(--pink-dim); }
+  .handle { color: var(--muted); font-size: 13px; letter-spacing: 0.05em; margin-bottom: 32px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-gold); border-radius: 20px; padding: 5px 14px; font-size: 11px; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 28px; text-transform: uppercase; }
+  .badge::before { content: '●'; font-size: 8px; }
+  .headline { font-family: 'Playfair Display', serif; font-size: clamp(26px, 5vw, 42px); font-weight: 900; text-align: center; line-height: 1.2; max-width: 560px; margin-bottom: 40px; }
+  .headline .pink { color: var(--pink); }
+  .card { background: var(--card); border: 1px solid var(--border-gold); border-radius: 20px; padding: 36px 32px; width: 100%; max-width: 400px; }
+  .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .tabs { display: flex; gap: 0; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; }
+  .tab { flex: 1; padding: 9px; text-align: center; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; border-radius: 8px; transition: all 0.2s; border: none; background: transparent; }
+  .tab.active { background: var(--pink); color: #fff; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; color: var(--white); font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus { border-color: var(--pink); }
+  .form-group input::placeholder { color: var(--muted); }
+  .btn { width: 100%; background: var(--green); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+  .btn:hover { background: var(--green-dark); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .msg-error { background: rgba(255,45,78,0.1); border: 1px solid rgba(255,45,78,0.3); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ff6b8a; margin-top: 12px; display: none; }
+  .msg-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4ade80; margin-top: 12px; display: none; }
+  .footer { margin-top: 20px; font-size: 11px; color: var(--muted); text-align: center; }
+  .footer span { color: var(--pink); }
+  .hint { font-size: 12px; color: var(--muted); text-align: center; margin-top: 14px; }
+  .hint a { color: var(--pink); cursor: pointer; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<!-- LOGIN / CADASTRO -->
+<div id="screen-auth" class="screen active">
+  <div class="avatar">✨</div>
+  <div class="handle">@cleiceneves</div>
+  <div class="badge">Material Exclusivo</div>
+  <h1 class="headline">
+    Esses são os <span class="pink">agentes de IA</span> que eu, Cleice, uso
+    todos os dias para <span class="pink">viralizar no Instagram</span> e
+    ganhar mais de <span class="pink">+1000 seguidores por dia</span>
+  </h1>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab" onclick="switchTab('cadastro')">Criar conta</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••" />
+      </div>
+      <button class="btn" id="btn-login" onclick="fazerLogin()">ACESSAR AGENTES →</button>
+      <div class="msg-error" id="login-error"></div>
+    </div>
+
+    <!-- CADASTRO -->
+    <div id="form-cadastro" style="display:none;">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="cad-email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Criar senha</label>
+        <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <div class="form-group">
+        <label>Confirmar senha</label>
+        <input type="password" id="cad-senha2" placeholder="Repita a senha" />
+      </div>
+      <button class="btn" id="btn-cadastro" onclick="fazerCadastro()">CRIAR MINHA CONTA →</button>
+      <div class="msg-error" id="cad-error"></div>
+      <div class="msg-success" id="cad-success"></div>
+    </div>
+  </div>
+  <div class="footer">Material Exclusivo — <span>Cleice Neves</span></div>
+</div>
+
+<!-- REDIRECIONANDO -->
+<div id="screen-redirect" class="screen">
+  <div class="avatar">✨</div>
+  <div class="badge">Acesso Liberado</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:28px;text-align:center;margin-bottom:12px;">Bem-vinda! 🎉</h2>
+  <p style="color:var(--muted);text-align:center;margin-bottom:32px;">Redirecionando para os agentes...</p>
+  <div style="width:40px;height:40px;border:3px solid var(--pink);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://rsvmvjhacnvkdqwsgwzl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzdm12amhhY252a2Rxd3Nnd3psIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTg3ODM3NiwiZXhwIjoyMDk3NDU0Mzc2fQ.yMY8SaMj40c_mrHwDsPH9Adizp87C96mcvJx1EygV3k';
+const DESTINO = 'https://rosa-dourado-assistentes.lovable.app';
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='cadastro')));
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const senha = document.getElementById('login-senha').value;
+  const erro = document.getElementById('login-error');
+  const btn = document.getElementById('btn-login');
+  erro.style.display = 'none';
+  if (!email || !senha) { erro.textContent = 'Preencha email e senha.'; erro.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'VERIFICANDO...';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(email)}&select=senha,ativo`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const data = await res.json();
+    if (!data.length) { erro.textContent = 'Email não encontrado. Verifique ou crie uma conta.'; erro.style.display = 'block'; }
+    else if (!data[0].ativo) { erro.textContent = 'Acesso desativado. Entre em contato com o suporte.'; erro.style.display = 'block'; }
+    else if (data[0].senha !== btoa(senha)) { erro.textContent = 'Senha incorreta.'; erro.style.display = 'block'; }
+    else {
+      document.getElementById('screen-auth').classList.remove('active');
+      document.getElementById('screen-redirect').classList.add('active');
+      setTimeout(() => { window.location.href = DESTINO; }, 1500);
+      return;
+    }
+  } catch(e) { erro.textContent = 'Erro de conexão. Tenta de novo.'; erro.style.display = 'block'; }
+  btn.disabled = false; btn.textContent = 'ACESSAR AGENTES →';
+}
+
+async function fazerCadastro() {
+  const email = document.getElementById('cad-email').value.trim().toLowerCase();
+  const senha = document.getElementById('cad-senha').value;
+  const senha2 = document.getElementById('cad-senha2').value;
+  const erro = document.getElementById('cad-error');
+  const sucesso = document.getElementById('cad-success');
+  const btn = document.getElementById('btn-cadastro');
+  erro.style.display = 'none'; sucesso.style.display = 'none';
+  if (!email || !senha) { erro.textContent = 'Preencha todos os campos.'; erro.style.display = 'block'; return; }
+  if (senha.length < 6) { erro.textContent = 'Senha precisa ter pelo menos 6 caracteres.'; erro.style.display = 'block'; return; }
+  if (senha !== senha2) { erro.textContent = 'As senhas não coincidem.'; erro.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'VERIFICANDO...';
+  try {
+    // Verifica se email está autorizado
+    const check = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(email)}&select=id,senha,ativo`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const existing = await check.json();
+    if (!existing.length) {
+      erro.textContent = 'Email não autorizado. Você precisa ter comprado o produto para criar uma conta.';
+      erro.style.display = 'block';
+    } else if (existing[0].senha) {
+      erro.textContent = 'Conta já criada. Faça login na aba "Entrar".';
+      erro.style.display = 'block';
+    } else {
+      // Atualiza senha
+      await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${existing[0].id}`, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senha: btoa(senha) })
+      });
+      sucesso.textContent = 'Conta criada! Agora faça login na aba "Entrar".';
+      sucesso.style.display = 'block';
+      setTimeout(() => switchTab('login'), 2000);
+    }
+  } catch(e) { erro.textContent = 'Erro de conexão. Tenta de novo.'; erro.style.display = 'block'; }
+  btn.disabled = false; btn.textContent = 'CRIAR MINHA CONTA →';
+}
+
+document.getElementById('login-senha').addEventListener('keydown', e => { if(e.key==='Enter') fazerLogin(); });
+</script>
+</body>
+</html>

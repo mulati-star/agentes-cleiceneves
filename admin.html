@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Gerenciar Acessos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  :root { --bg: #0d0007; --card: #1a0015; --pink: #FF2D78; --green: #22c55e; --green-dark: #16a34a; --red: #ef4444; --red-dark: #dc2626; --white: #fff; --muted: #9d7a93; --border: rgba(255,45,120,0.2); --border-gold: rgba(201,168,76,0.3); --gold: #c9a84c; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; padding: 40px 20px; }
+  .bg-glow { position: fixed; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(255,45,120,0.08) 0%, transparent 70%); top: -150px; left: 50%; transform: translateX(-50%); pointer-events: none; }
+  .container { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
+  .header { text-align: center; margin-bottom: 40px; }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .header h1 span { color: var(--pink); }
+  .header p { font-size: 13px; color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--border-gold); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+  .card h2 { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .count { background: var(--pink); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
+  .input-row { display: flex; gap: 10px; }
+  input[type=text], input[type=email], input[type=password] { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--white); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+  input:focus { border-color: var(--pink); }
+  input::placeholder { color: var(--muted); }
+  .btn { border: none; border-radius: 10px; padding: 12px 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: var(--green-dark); }
+  .btn-red { background: var(--red); color: #fff; font-size: 11px; padding: 6px 12px; }
+  .btn-red:hover { background: var(--red-dark); }
+  .btn-pink { background: var(--pink); color: #fff; width: 100%; margin-top: 8px; }
+  .btn-pink:hover { background: #e01f66; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .user-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .user-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; gap: 10px; }
+  .user-info { flex: 1; }
+  .user-email { font-size: 14px; color: #e8d4e3; }
+  .user-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .status-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+  .status-ativo { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .status-inativo { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 20px; }
+  .toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; border-radius: 10px; padding: 12px 20px; font-size: 13px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: var(--red); }
+  .admin-login { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-gold); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--gold); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .search-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--white); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 16px; }
+  .search-input:focus { border-color: var(--pink); }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div id="admin-login" class="admin-login">
+  <div class="badge">● Painel Admin</div>
+  <div class="card" style="width:100%;max-width:380px;">
+    <h2 style="color:var(--gold);margin-bottom:20px;">ACESSO RESTRITO</h2>
+    <input type="password" id="admin-senha" placeholder="Senha do admin" style="width:100%;margin-bottom:10px;" />
+    <button class="btn btn-pink" onclick="loginAdmin()">ENTRAR</button>
+    <div id="admin-error" style="display:none;color:#ff6b8a;font-size:13px;text-align:center;margin-top:10px;"></div>
+  </div>
+</div>
+
+<div id="painel" style="display:none;">
+  <div class="container">
+    <div class="header">
+      <h1>Painel de <span>Acessos</span></h1>
+      <p>Gerencie os compradores — integrado com Hotmart</p>
+    </div>
+
+    <div class="card">
+      <h2>Adicionar Comprador Manualmente</h2>
+      <div class="input-row">
+        <input type="email" id="novo-email" placeholder="email@comprador.com" />
+        <button class="btn btn-green" onclick="adicionarUsuario()" id="btn-add">ADICIONAR</button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">O comprador recebe o email e cria a própria senha no site.</p>
+    </div>
+
+    <div class="card">
+      <h2>Compradores <span class="count" id="total-count">0</span></h2>
+      <input class="search-input" placeholder="Buscar por email..." oninput="filtrarUsuarios(this.value)" />
+      <div class="user-lista" id="user-lista"><div class="empty">Carregando...</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://rsvmvjhacnvkdqwsgwzl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzdm12amhhY252a2Rxd3Nnd3psIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTg3ODM3NiwiZXhwIjoyMDk3NDU0Mzc2fQ.yMY8SaMj40c_mrHwDsPH9Adizp87C96mcvJx1EygV3k';
+const ADMIN_SENHA = 'admin@cleice2024';
+
+let todosUsuarios = [];
+
+function loginAdmin() {
+  const val = document.getElementById('admin-senha').value;
+  if (val === ADMIN_SENHA) {
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('painel').style.display = 'block';
+    carregarUsuarios();
+  } else {
+    document.getElementById('admin-error').style.display = 'block';
+    document.getElementById('admin-error').textContent = 'Senha incorreta.';
+  }
+}
+document.getElementById('admin-senha').addEventListener('keydown', e => { if(e.key==='Enter') loginAdmin(); });
+
+async function carregarUsuarios() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?select=*&order=criado_em.desc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    todosUsuarios = await res.json();
+    renderUsuarios(todosUsuarios);
+  } catch(e) { mostrarToast('Erro ao carregar', true); }
+}
+
+function renderUsuarios(lista) {
+  document.getElementById('total-count').textContent = lista.length;
+  const el = document.getElementById('user-lista');
+  if (!lista.length) { el.innerHTML = '<div class="empty">Nenhum comprador ainda.</div>'; return; }
+  el.innerHTML = lista.map(u => `
+    <div class="user-item">
+      <div class="user-info">
+        <div class="user-email">${u.email}</div>
+        <div class="user-meta">${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : ''} ${u.hotmart_id ? '· Hotmart' : '· Manual'} ${u.senha ? '' : '· <span style="color:#f59e0b;">Aguardando cadastro</span>'}</div>
+      </div>
+      <span class="status-badge ${u.ativo ? 'status-ativo' : 'status-inativo'}">${u.ativo ? 'ATIVO' : 'INATIVO'}</span>
+      <button class="btn btn-red" onclick="${u.ativo ? `desativar('${u.id}')` : `ativar('${u.id}')`}">${u.ativo ? 'Revogar' : 'Ativar'}</button>
+    </div>
+  `).join('');
+}
+
+function filtrarUsuarios(termo) {
+  const filtrados = todosUsuarios.filter(u => u.email.includes(termo.toLowerCase()));
+  renderUsuarios(filtrados);
+}
+
+async function adicionarUsuario() {
+  const email = document.getElementById('novo-email').value.trim().toLowerCase();
+  if (!email) { mostrarToast('Digite um email', true); return; }
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ email, ativo: true })
+    });
+    if (res.ok) { document.getElementById('novo-email').value = ''; mostrarToast('Comprador adicionado ✓'); await carregarUsuarios(); }
+    else { mostrarToast('Email já cadastrado', true); }
+  } catch(e) { mostrarToast('Erro ao adicionar', true); }
+  btn.disabled = false; btn.textContent = 'ADICIONAR';
+}
+
+async function desativar(id) {
+  if (!confirm('Revogar acesso deste comprador?')) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ativo: false })
+  });
+  mostrarToast('Acesso revogado ✓');
+  await carregarUsuarios();
+}
+
+async function ativar(id) {
+  await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ativo: true })
+  });
+  mostrarToast('Acesso reativado ✓');
+  await carregarUsuarios();
+}
+
+function mostrarToast(msg, erro=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (erro ? ' error' : '') + ' show';
+  setTimeout(() => t.className = 'toast' + (erro ? ' error' : ''), 2500);
+}
+</script>
+</body>
+</html>
